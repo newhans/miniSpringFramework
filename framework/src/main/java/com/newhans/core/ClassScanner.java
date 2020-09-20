@@ -42,6 +42,7 @@ public class ClassScanner {
             //jar entry : eg. com/newhans/Test.class
             if (entryName.startsWith(path) && entryName.endsWith((".class"))){
                 String classFullName = entryName.replace("/", ".").substring(0, entryName.length() - 6);
+                //反射：获得类对象
                 classes.add(Class.forName(classFullName));
             }
         }
