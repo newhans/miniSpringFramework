@@ -7,5 +7,5 @@ import java.lang.annotation.*;
 //注解在类上，所以target选type
 @Target(ElementType.TYPE)
 
-public @interface Bean {
+public @interface Component {
 }

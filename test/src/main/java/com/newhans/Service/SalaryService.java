@@ -1,8 +1,8 @@
 package com.newhans.Service;
 
-import com.newhans.beans.Bean;
+import com.newhans.beans.Component;
 
-@Bean
+@Component
 public class SalaryService {
     public Integer claSalary(Integer experience){
         return experience * 5000;
