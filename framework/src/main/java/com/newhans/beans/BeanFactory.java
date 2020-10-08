@@ -13,8 +13,16 @@ public class BeanFactory {
     private static Map<Class<?>, Object> beans = new ConcurrentHashMap<>();
 
     /**
-     *带有@AutoWired注解修饰的属性的类
+     *带有@Autowired注解修饰的属性的类
      */
+    //这里@Autowired是基于注解的依赖注入
+    /**
+     * 而依赖注入一共有四种实现方式
+     * 1.构造方法注入
+     * 2.setter方法注入
+     * 3.接口注入
+     * 4.注解注入 ---> @Autowired + @Component
+      */
     private static Set<Class<?>> beansHasAutoWiredField = Collections.synchronizedSet(new HashSet<>());
 
     public static Object getBean(Class<?> cls){
@@ -23,7 +31,7 @@ public class BeanFactory {
 
     /**
      * 根据类列表classList来查找所有需要初始化的类放入Component工厂
-     * 并且处理类中所有带@Autowired注解的属性的依赖问题
+     * 并且处理类中所有带@Autowired注解的字段的依赖问题
      * @param classList
      * @throws Exception
      */
@@ -112,11 +120,13 @@ public class BeanFactory {
             //初始化对象，为了简单起见，假设每一个代理类，最多只有一个切点，一个前置以及一个后置处理器
             //所以我们也必须先处理pointcut，再解析before和after方法
             Object bean = aClass.newInstance();
+            //所有注册到容器的业务对象，在spring中称为bean （业务需求<--->系统需求）
             for (Method m : bean.getClass().getDeclaredMethods()){
                 if (m.isAnnotationPresent(Pointcut.class)){
-                    //com.newhans.demo.rapper.rap()
+                    //eg. @Pointcut("com.newhans.Service.serviceImpl.Rapper.rap()")
                     String pointcut = m.getAnnotation(Pointcut.class).value();
                     String classStr = pointcut.substring(0, pointcut.lastIndexOf("."));
+                    //loadClass将类加载
                     target = Thread.currentThread().getContextClassLoader().loadClass(classStr).newInstance();
                     method = pointcut.substring(pointcut.lastIndexOf(".") + 1);
                     pointcutName = m.getName();
@@ -124,7 +134,7 @@ public class BeanFactory {
             }
 
             for (Method m : bean.getClass().getDeclaredMethods()){
-                //todo
+                //eg.  @Before("rapPoint()")
                 if (m.isAnnotationPresent(Before.class)){
                     String value = m.getAnnotation(Before.class).value();
                     value = value.substring(0, value.indexOf("("));
@@ -147,3 +157,29 @@ public class BeanFactory {
         }
     }
 }
+
+/*
+    双亲委派模型的实现
+    protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException{
+        Class c = findLoadedClass(name);
+        if (c == null){
+            try{
+                if (parent != null){
+                    c = parent.loadClass(name, false);
+                }else{
+                    c = findBootstrapClassOrNull(name);
+                }
+            }catch (ClassNotFoundException e){
+
+            }
+            if (c == null){
+                //在父类加载器无法加载的时候，再调用本身的findClass方法来进行类加载
+                c = findClass(name);
+            }
+            if (resolve){
+                resolveClass(c);
+            }
+        }
+        return c;
+    }
+ */

@@ -14,8 +14,9 @@ public class ClassScanner {
         //T:一类 ？:不知道多少不同的
         List<Class<?>> classList = new ArrayList<>();
         String path = packageName.replace(".","/");
-        //获取默认的类加载器
+        //获取默认的类加载器-->应该是Application Class Loader
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        //双亲委派机制:Application Class Loader -> Extension Class Loader -> Bootstrap Class Loader
         Enumeration<URL> resources = classLoader.getResources(path);
         while (resources.hasMoreElements()){
             URL resource = resources.nextElement();

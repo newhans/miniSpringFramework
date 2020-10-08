@@ -19,11 +19,12 @@ public class MiniApplication {
             List<Class<?>> classList = null;
             try {
                 classList = ClassScanner.scanClasses(cls.getPackage().getName());
+                //System.out.println(cls.getPackage().getName());
+                //cls.getPackage().getName() ----> com.newhans
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
-
             }
 
             try {

@@ -29,6 +29,9 @@ public class ProxyDynamic implements InvocationHandler {
         this.after = after;
         this.target = target;
         this.targetMethod = targetMethod;
+        //Object newProxyInstance(ClassLoader loader,
+        //                              @NotNull Class<?>[] interfaces,
+        //                              @NotNull reflect.InvocationHandler h)
         return Proxy.newProxyInstance(target.getClass().getClassLoader(), target.getClass().getInterfaces(), this);
         //this:handle
     }
