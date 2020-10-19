@@ -9,7 +9,10 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+//Bean工厂，用来初始化和保存Bean
 public class BeanFactory {
+    //用来表示bean类型到bean实例的映射，我们可以通过bean的类型，从这个映射里取到对应的bean
+    //这个映射在后续处理时可能是并发处理，我们使用concurrentHashMap
     private static Map<Class<?>, Object> beans = new ConcurrentHashMap<>();
 
     /**
@@ -25,6 +28,7 @@ public class BeanFactory {
       */
     private static Set<Class<?>> beansHasAutoWiredField = Collections.synchronizedSet(new HashSet<>());
 
+    //用来从映射里获取bean
     public static Object getBean(Class<?> cls){
         return beans.get(cls);
     }
@@ -35,6 +39,7 @@ public class BeanFactory {
      * @param classList
      * @throws Exception
      */
+    //传入的是之前扫描到的类定义
     public static void initBean(List<Class<?>> classList) throws Exception {
         /*因为类定义后续处理类中@RequestMapping注解生成处理器时还要使用
         因此这里要创建新容器，不能修改原引用
@@ -63,18 +68,24 @@ public class BeanFactory {
 
     private static void createBean(Class<?> aClass) throws IllegalAccessException, InstantiationException {
         //只处理带@Component注解或者@Controller注解的类
+        //Controller也是一种特殊的bean
         if (!aClass.isAnnotationPresent(Component.class) && !aClass.isAnnotationPresent(Controller.class)){
             return;
         }
         //初始化对象
+        /**
+         * ！！！！！！！！！在这里初始化bean
+         */
         Object bean = aClass.newInstance();
         //遍历类中所有定义的字段，如果字段带有@Autowired注解，则需要注入对应依赖
         for (Field field : bean.getClass().getDeclaredFields()){
+            //如果这个属性被@Autowired注解到，就表示它需要依赖注入来解决这个依赖
             if (!field.isAnnotationPresent(AutoWired.class)){
                 continue;
             }
             //将需要注入其他Bean的类保存起来，因为要等到AOP代理类生成之后，需要更新他们
             BeanFactory.beansHasAutoWiredField.add(aClass);
+            //我们先获得这个属性的类型，再通过类型区bean工厂获取bean
             Class<?> fieldType = field.getType();
             field.setAccessible(true);
             /*
@@ -95,11 +106,17 @@ public class BeanFactory {
                     }
                 }
             }
+            //可以直接用字段的set方法设值注入了
             field.set(bean, BeanFactory.getBean(fieldType));
         }
         //todo
+        /**
+         * ！！！这里可能Autowired注入失败，例如存在循环依赖，或者bean工厂中根本不存在，目前暂时先不处理
+         */
+        //字段处理完后，就可以把bean放入bean工厂了
         //这里可能Autowired注入失败，例如存在循环依赖，或者bean工厂中根本不存在，目前暂时先不处理
         beans.put(aClass, bean);
+        //然后回MappingHandler，让MappingHandler可以使用bean
     }
 
     /**

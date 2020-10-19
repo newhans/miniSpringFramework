@@ -21,6 +21,8 @@ public class TomcatServer {
         tomcat.setPort(7777);
         tomcat.start();
 
+        //servlet并不是直接依附在tomcat内的
+        //tomcat把容器分为四个级别，对容器的职责进行解耦
         /**
          * Tomcat容器
          * 1.Engine：最顶级的容器，tomcat的总控中心
@@ -33,16 +35,23 @@ public class TomcatServer {
         context.setPath("");
         context.addLifecycleListener(new Tomcat.FixContextListener());
 
+        // 新建一个 DispatcherServlet 对象，这个是我们自己写的 Servlet 接口的实现类，
+        // 然后使用 `Tomcat.addServlet()` 方法为 context 设置指定名字的 Servlet 对象，
+        // 并设置为支持异步。
         DispatcherServlet servlet = new DispatcherServlet();
         Tomcat.addServlet(context, "dispatcherServlet", servlet).setAsyncSupported(true);
-        //添加servlet到URL的映射，访问这个URL时，Tomcat会调用这个servlet
 
+        //添加servlet到URi的映射，访问这个URL时，Tomcat会调用这个servlet
         //根URL
+        //这个uri就是根uri ： /
+        //name就是我们注册的servlet
         context.addServletMappingDecoded("/", "dispatcherServlet");
         //context容器需要依附在一个Host容器内，我们把它注册到一个默认的Host容器
         tomcat.getHost().addChild(context);
 
         //用非守护线程保持tomcat的存活
+        //等待线程
+        //防止tomcat的退出
         Thread awaitThread = new Thread("tomcat_await_thread"){
           @Override
           public void run(){
