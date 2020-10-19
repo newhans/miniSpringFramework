@@ -1,2 +1,2 @@
-# mini_spring
-一个简单的破产版的springmvc框架
+## miniSpringFramework
+### miniSpringFramework是一个轻量级的spring框架，为了深刻理解Spring核心思想，在学习Spring的过程中，我完成了spring框架的IOC,AOP以及SpringMVC的简单仿写，通过实现@Autowired与@Component注解来实现依赖注入，通过动态代理与反射机制以及@Aspect，@Before和@After注解来实现AOP思想。同时，实现了dispatcherServlet以及HandlerManager与MappingHandler搭配@Controller，@RequestMapping与@RequestParam注解实现了SpringMVC的部分。最终以极简的方式实现了Spring框架的仿写。
