@@ -42,6 +42,9 @@ public class MappingHandler {
             //我们通过参数名，依次从ServletRequest里获得这些参数
             parameters[i] = req.getParameter(args[i]);
         }
+        /**
+         * 注意这里的getBean
+         */
         //实例化这个Controller
         Object ctl = BeanFactory.getBean(controller);
         //用Object存储结果

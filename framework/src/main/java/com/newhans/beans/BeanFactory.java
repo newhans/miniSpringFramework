@@ -86,6 +86,9 @@ public class BeanFactory {
             //将需要注入其他Bean的类保存起来，因为要等到AOP代理类生成之后，需要更新他们
             BeanFactory.beansHasAutoWiredField.add(aClass);
             //我们先获得这个属性的类型，再通过类型区bean工厂获取bean
+            /**
+             * Autowired 是 byType的
+             */
             Class<?> fieldType = field.getType();
             field.setAccessible(true);
             /*
@@ -136,6 +139,10 @@ public class BeanFactory {
 
             //初始化对象，为了简单起见，假设每一个代理类，最多只有一个切点，一个前置以及一个后置处理器
             //所以我们也必须先处理pointcut，再解析before和after方法
+            /**
+             *             //初始化对象，为了简单起见，假设每一个代理类，最多只有一个切点，一个前置以及一个后置处理器
+             *             //所以我们也必须先处理pointcut，再解析before和after方法
+             */
             Object bean = aClass.newInstance();
             //所有注册到容器的业务对象，在spring中称为bean （业务需求<--->系统需求）
             for (Method m : bean.getClass().getDeclaredMethods()){
